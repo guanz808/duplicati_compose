@@ -1,0 +1,45 @@
+---
+version: "3.8"
+services:
+  duplicati:
+    image: lscr.io/linuxserver/duplicati:latest
+    container_name: duplicati
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Pacific/Honolulu
+      - CLI_ARGS= #optional
+    volumes:
+      - config:/config
+      - backups:/backups
+      - source:/source
+    ports:
+      - 8200:8200
+    networks:
+      - infrastructure_frontend      
+    restart: unless-stopped
+
+volumes:
+  config:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.1.11,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14,nfsvers=4"
+      device: ":/volume1/docker/duplicati/config"
+  backups:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.1.11,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14,nfsvers=4"
+      device: ":/volume1/docker/duplicati/backups" 
+  source:
+    driver: local
+    driver_opts:
+      type: nfs
+      o: "addr=192.168.1.11,rw,noatime,rsize=8192,wsize=8192,tcp,timeo=14,nfsvers=4"
+      device: ":/volume1/docker"
+
+networks:
+  infrastructure_frontend:
+    external: true
+    name: infrastructure_frontend      
